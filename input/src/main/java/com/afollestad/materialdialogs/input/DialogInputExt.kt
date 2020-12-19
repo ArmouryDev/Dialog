@@ -21,6 +21,7 @@ import android.annotation.SuppressLint
 import android.text.InputType
 import android.widget.EditText
 import androidx.annotation.CheckResult
+import androidx.annotation.ColorRes
 import androidx.annotation.StringRes
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.WhichButton.POSITIVE
@@ -41,7 +42,8 @@ typealias InputCallback = ((MaterialDialog, CharSequence) -> Unit)?
  *
  * @throws IllegalStateException if the dialog is not an input dialog.
  */
-@CheckResult fun MaterialDialog.getInputLayout(): TextInputLayout {
+@CheckResult
+fun MaterialDialog.getInputLayout(): TextInputLayout {
   val key = "[custom_view_input_layout]"
   return config[key] as? TextInputLayout ?: lookupInputLayout().also {
     config[key] = it
@@ -58,7 +60,8 @@ private fun MaterialDialog.lookupInputLayout(): TextInputLayout {
  *
  * @throws IllegalStateException if the dialog is not an input dialog.
  */
-@CheckResult fun MaterialDialog.getInputField(): EditText {
+@CheckResult
+fun MaterialDialog.getInputField(): EditText {
   return getInputLayout().editText ?: throw IllegalStateException(
       "You have not setup this dialog as an input dialog."
   )
@@ -85,15 +88,16 @@ private fun MaterialDialog.lookupInputLayout(): TextInputLayout {
 @SuppressLint("CheckResult")
 @CheckResult
 fun MaterialDialog.input(
-  hint: String? = null,
-  @StringRes hintRes: Int? = null,
-  prefill: CharSequence? = null,
-  @StringRes prefillRes: Int? = null,
-  inputType: Int = InputType.TYPE_CLASS_TEXT,
-  maxLength: Int? = null,
-  waitForPositiveButton: Boolean = true,
-  allowEmpty: Boolean = false,
-  callback: InputCallback = null
+    hint: String? = null,
+    @StringRes hintRes: Int? = null,
+    prefill: CharSequence? = null,
+    @StringRes prefillRes: Int? = null,
+    inputType: Int = InputType.TYPE_CLASS_TEXT,
+    maxLength: Int? = null,
+    waitForPositiveButton: Boolean = true,
+    allowEmpty: Boolean = false,
+    @ColorRes textColorRes: Int? = null,
+    callback: InputCallback = null
 ): MaterialDialog {
   customView(R.layout.md_dialog_stub_input)
   onPreShow { showKeyboardIfApplicable() }
@@ -107,7 +111,7 @@ fun MaterialDialog.input(
   }
 
   prefillInput(prefill = prefill, prefillRes = prefillRes, allowEmpty = allowEmpty)
-  styleInput(hint = hint, hintRes = hintRes, inputType = inputType)
+  styleInput(hint = hint, hintRes = hintRes, inputType = inputType, textColorRes = textColorRes)
 
   if (maxLength != null) {
     getInputLayout().run {
@@ -133,9 +137,9 @@ fun MaterialDialog.input(
 }
 
 private fun MaterialDialog.prefillInput(
-  prefill: CharSequence?,
-  prefillRes: Int?,
-  allowEmpty: Boolean
+    prefill: CharSequence?,
+    prefillRes: Int?,
+    allowEmpty: Boolean
 ) {
   val resources = windowContext.resources
   val editText = getInputField()
@@ -152,9 +156,10 @@ private fun MaterialDialog.prefillInput(
 }
 
 private fun MaterialDialog.styleInput(
-  hint: String?,
-  hintRes: Int?,
-  inputType: Int
+    hint: String?,
+    hintRes: Int?,
+    inputType: Int,
+    textColorRes: Int?
 ) {
   val resources = windowContext.resources
   val editText = getInputField()
@@ -163,8 +168,10 @@ private fun MaterialDialog.styleInput(
   editText.inputType = inputType
   editText.maybeSetTextColor(
       windowContext,
-      attrRes = R.attr.md_color_content,
+      attrRes = R.attr.md_color_edit_text,
+      colorRes = textColorRes,
       hintAttrRes = R.attr.md_color_hint
   )
+
   bodyFont?.let(editText::setTypeface)
 }
